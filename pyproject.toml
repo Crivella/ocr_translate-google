@@ -1,0 +1,99 @@
+[build-system]
+# build the package with [flit](https://flit.readthedocs.io)
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+# See https://www.python.org/dev/peps/pep-0621/
+name = "ocr_translate-google"
+dynamic = ["version"] # read from ocr_translate/__init__.py
+description = "Plugin to implement google translation for ocr_translate."
+authors = [
+    { name = "Davide Grassano" },
+]
+readme = "README.md"
+license = { file = "LICENSE.txt" }
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Natural Language :: English",
+    "Topic :: Text Processing :: Linguistic",
+]
+keywords = ["django", "translation"]
+requires-python = ">=3.10"
+dependencies = [
+    "django-ocr_translate~=0.2.0",
+    "googletrans~=4.0.0rc1",
+]
+
+[project.urls]
+Source = "https://github.com/crivella/ocr_translate-google"
+
+[project.optional-dependencies]
+tests = [
+    "pytest",
+    "pytest-cov",
+    # "pytest-regressions~=2.4",
+    "pytest-django~=4.5.2",
+]
+pre-commit = [
+    "pre-commit~=3.3.3",
+    "pylint~=2.17.4",
+    "pylint-pytest~=1.1.2",
+    "pylint-django~=2.5.3",
+]
+release = [
+    "flit",
+]
+
+[project.entry-points."ocr_translate.tsl_models"]
+"google_translate.online" = "ocr_translate_google.plugin:GoogleTranslateModel"
+
+[tool.flit.module]
+name = "ocr_translate_google"
+
+[tool.flit.sdist]
+exclude = [
+    ".gitignore", ".github", ".pre-commit-config.yaml",
+    "icon.ico", "run_server.py", "build.sh",
+    "Dockerfile-cpu", "Dockerfile-gpu", "nginx.default", "start-server.sh",
+    "mysite/", "mysite/*", "manage.py", "tests/", "tests/*",
+    ]
+
+# [tool.pytest.ini_options]
+# testpaths = ["tests"]
+# DJANGO_SETTINGS_MODULE = "mysite.settings"
+# log_cli = 1
+
+# [tool.pylint.main]
+# load-plugins = [
+#     "pylint_django",
+#     "pylint_pytest"
+# ]
+# django-settings-module = "mysite.settings"
+
+[tool.pylint.messages_control]
+disable = [
+    "logging-fstring-interpolation",
+    "global-statement",
+    "broad-exception-caught",
+    "too-few-public-methods",
+]
+
+
+[tool.pylint.format]
+max-line-length = 120
+good-names = [
+    "_",
+    "l", "r", "b", "t",
+    "l1", "r1", "b1", "t1",
+    "l2", "r2", "b2", "t2",
+    "i", "j",
+    "k", "v",
+    "f",
+]
+
+[tool.pylint.design]
+max-args = 10
+max-locals = 20
+max-attributes = 12
