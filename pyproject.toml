@@ -46,6 +46,8 @@ release = [
     "flit",
 ]
 
+[project.entry-points."ocr_translate.tsl_data"]
+"google_translate.online" = "ocr_translate_google:tsl_model_data"
 [project.entry-points."ocr_translate.tsl_models"]
 "google_translate.online" = "ocr_translate_google.plugin:GoogleTranslateModel"
 
@@ -74,10 +76,7 @@ exclude = [
 
 [tool.pylint.messages_control]
 disable = [
-    "logging-fstring-interpolation",
-    "global-statement",
-    "broad-exception-caught",
-    "too-few-public-methods",
+
 ]
 
 
@@ -85,12 +84,6 @@ disable = [
 max-line-length = 120
 good-names = [
     "_",
-    "l", "r", "b", "t",
-    "l1", "r1", "b1", "t1",
-    "l2", "r2", "b2", "t2",
-    "i", "j",
-    "k", "v",
-    "f",
 ]
 
 [tool.pylint.design]
