@@ -75,4 +75,3 @@ class GoogleTranslateModel(m.TSLModel):
         if batch:
             res = res.split('\n\n')
         return res
-    

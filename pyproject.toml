@@ -33,7 +33,6 @@ Source = "https://github.com/crivella/ocr_translate-google"
 tests = [
     "pytest",
     "pytest-cov",
-    # "pytest-regressions~=2.4",
     "pytest-django~=4.5.2",
 ]
 pre-commit = [
@@ -57,9 +56,7 @@ name = "ocr_translate_google"
 [tool.flit.sdist]
 exclude = [
     ".gitignore", ".github", ".pre-commit-config.yaml",
-    "icon.ico", "run_server.py", "build.sh",
-    "Dockerfile-cpu", "Dockerfile-gpu", "nginx.default", "start-server.sh",
-    "mysite/", "mysite/*", "manage.py", "tests/", "tests/*",
+    "tests/", "tests/*",
     ]
 
 # [tool.pytest.ini_options]
@@ -76,7 +73,10 @@ exclude = [
 
 [tool.pylint.messages_control]
 disable = [
-
+    "logging-fstring-interpolation",
+    "global-statement",
+    "broad-exception-caught",
+    "too-few-public-methods",
 ]
 
 
@@ -84,9 +84,5 @@ disable = [
 max-line-length = 120
 good-names = [
     "_",
-]
 
-[tool.pylint.design]
-max-args = 10
-max-locals = 20
-max-attributes = 12
+]
