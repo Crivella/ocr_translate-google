@@ -45,6 +45,7 @@ class GoogleTranslateModel(m.TSLModel):
     def unload(self) -> None:
         """Unload the model from memory."""
         del self.translator
+        self.translator = None
 
     def _translate(self, tokens: list, src_lang: str, dst_lang: str, options: dict = None) -> str | list[str]:
         """Translate a text using a the loaded model.
