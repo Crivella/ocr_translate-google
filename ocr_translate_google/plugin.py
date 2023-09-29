@@ -47,7 +47,11 @@ class GoogleTranslateModel(m.TSLModel):
         del self.translator
         self.translator = None
 
-    def _translate(self, tokens: list, src_lang: str, dst_lang: str, options: dict = None) -> str | list[str]:
+    def _translate(
+            self,
+            tokens: list[str] | list[list[str]], src_lang: str, dst_lang: str,
+            options: dict = None
+            ) -> str | list[str]:
         """Translate a text using a the loaded model.
 
         Args:
@@ -62,17 +66,25 @@ class GoogleTranslateModel(m.TSLModel):
         Returns:
             Union[str,list[str]]: Translated text. If text is a list, returns a list of translated strings.
         """
+        options = options or {}
+        delta_thr = options.get('delta_thr', 2)
+        delta_thr = datetime.timedelta(seconds=delta_thr)
+
         batch = False
         if isinstance(tokens[0], list):
             batch = True
             tokens = [' '.join(t) for t in tokens]
             tokens = '\n\n'.join(tokens)
-        elif isinstance(tokens, str):
+        elif isinstance(tokens[0], str):
             tokens = ' '.join(tokens)
-        while not self.last is None and datetime.datetime.now() - self.last < datetime.timedelta(seconds=2):
+
+        while not self.last is None and datetime.datetime.now() - self.last < delta_thr:
             time.sleep(0.2)
         self.last = datetime.datetime.now()
+
         res = self.translator.translate(tokens, src=src_lang, dest=dst_lang).text
+
         if batch:
             res = res.split('\n\n')
+
         return res
