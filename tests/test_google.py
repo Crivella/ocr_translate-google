@@ -23,7 +23,6 @@
 from importlib.metadata import entry_points
 
 import googletrans
-import pytest
 
 import ocr_translate_google as octg
 import ocr_translate_google.plugin as octg_plugin
