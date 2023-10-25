@@ -5,7 +5,7 @@ on:
       branches:
           - master
       paths:
-        - "ocr_translate_hugging_face/**"
+        - "ocr_translate_google/**"
         - "pyproject.toml"
         - ".github/workflows/ci.yml"
         - ".pre-commit-config.yaml"
