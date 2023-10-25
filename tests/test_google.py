@@ -23,6 +23,7 @@
 from importlib.metadata import entry_points
 
 import googletrans
+import pytest
 
 import ocr_translate_google as octg
 import ocr_translate_google.plugin as octg_plugin
@@ -93,6 +94,20 @@ def test_translate_batch(monkeypatch, mock_translate):
 
     assert res == expected.split('\n\n')
 
+def test_translate_exception(monkeypatch):
+    """Test that translate returns an empty string if an exception is raised."""
+    obj = octg_plugin.GoogleTranslateModel()
+    obj.load()
+
+    def mock_raise(*args, **kwargs):
+        raise TypeError
+    monkeypatch.setattr(obj.translator, 'translate', mock_raise)
+
+    res = obj._translate(['tok1', 'tok2'], 'ja', 'en')
+
+    assert res == ' '
+
+
 def test_throttling(monkeypatch, mock_translate, mock_called, mock_datetime):
     """Test that consecutive calls to translate are throttled."""
     monkeypatch.setattr(octg_plugin.time, 'sleep', mock_called)
@@ -109,3 +124,12 @@ def test_throttling(monkeypatch, mock_translate, mock_called, mock_datetime):
     obj._translate(tokens, 'ja', 'en', options={'delta_thr': 2})
 
     assert hasattr(mock_called, 'called')
+
+def test_no_token_input():
+    """Test that an empty string is returned if no tokens are passed."""
+    obj = octg_plugin.GoogleTranslateModel()
+    obj.load()
+
+    res = obj._translate([''], 'ja', 'en')
+
+    assert res == [' ']

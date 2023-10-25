@@ -78,11 +78,17 @@ class GoogleTranslateModel(m.TSLModel):
         elif isinstance(tokens[0], str):
             tokens = ' '.join(tokens)
 
+        if tokens.strip() == '':
+            return [' ']
+
         while not self.last is None and datetime.datetime.now() - self.last < delta_thr:
             time.sleep(0.2)
         self.last = datetime.datetime.now()
 
-        res = self.translator.translate(tokens, src=src_lang, dest=dst_lang).text
+        try:
+            res = self.translator.translate(tokens, src=src_lang, dest=dst_lang).text
+        except TypeError:
+            res = ' '
 
         if batch:
             res = res.split('\n\n')
