@@ -18,7 +18,7 @@
 ###################################################################################
 """Plugin to implement google translation for ocr_translate."""
 
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 
 tsl_model_data = {
     'name': 'google_translate',
