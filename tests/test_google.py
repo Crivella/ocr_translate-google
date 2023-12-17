@@ -124,6 +124,23 @@ def test_throttling(monkeypatch, mock_translate, mock_called, mock_datetime):
 
     assert hasattr(mock_called, 'called')
 
+def test_throttling_delta_string(monkeypatch, mock_translate, mock_called, mock_datetime):
+    """Test that consecutive calls to translate are throttled."""
+    monkeypatch.setattr(octg_plugin.time, 'sleep', mock_called)
+    # Needed to make sure test result does not depend on PC speed or has to run for 2+ seconds
+    monkeypatch.setattr(octg_plugin.datetime, 'datetime', mock_datetime)
+    monkeypatch.setattr(octg_plugin.datetime, 'timedelta', lambda seconds: seconds)
+    obj = octg_plugin.GoogleTranslateModel()
+    obj.load()
+    monkeypatch.setattr(obj.translator, 'translate', mock_translate)
+
+    tokens = ['tok1', 'tok2']
+
+    obj._translate(tokens, 'ja', 'en')
+    obj._translate(tokens, 'ja', 'en', options={'delta_thr': '2'})
+
+    assert hasattr(mock_called, 'called')
+
 def test_no_token_input():
     """Test that an empty string is returned if no tokens are passed."""
     obj = octg_plugin.GoogleTranslateModel()

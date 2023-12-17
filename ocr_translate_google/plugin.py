@@ -28,6 +28,14 @@ from ocr_translate import models as m
 class GoogleTranslateModel(m.TSLModel):
     """OCRtranslate plugin to allow usage of google_translate as translator."""
 
+    ALLOWED_OPTIONS = {
+        **m.TSLModel.ALLOWED_OPTIONS,
+        'delta_thr': {
+            'type': float,
+            'default': 2.0,
+            'description': 'Time delta between two consecutive translations.',
+        },
+    }
     class Meta: # pylint: disable=missing-class-docstring
         proxy = True
 
@@ -67,7 +75,10 @@ class GoogleTranslateModel(m.TSLModel):
             Union[str,list[str]]: Translated text. If text is a list, returns a list of translated strings.
         """
         options = options or {}
+
         delta_thr = options.get('delta_thr', 2)
+        if isinstance(delta_thr, str):
+            delta_thr = float(delta_thr)
         delta_thr = datetime.timedelta(seconds=delta_thr)
 
         batch = False
