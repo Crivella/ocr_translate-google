@@ -29,12 +29,24 @@ jobs:
           FLIT_USERNAME: __token__
           FLIT_PASSWORD: ${{ secrets.TESTPYPI_KEY }}
 
-      - name: Test install from TestPyPI
+      - name: Get pypi version number
+        id: get_version
         run: >
-          pip install
-          --index-url https://test.pypi.org/simple/
-          --extra-index-url https://pypi.org/simple/
-          ocr_translate_google
+          echo "VERSION=$(echo ${{ github.ref_name }} | cut -c2- )" >> $GITHUB_OUTPUT
+
+      # This way the CD workflow will note fail if test PyPI is not updated yet
+      - name: Test install from TestPyPI
+        uses: nick-fields/retry@v2
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout_minutes: 10
+          command: >-
+            sleep 10 &&
+            pip install
+              --index-url https://test.pypi.org/simple/
+              --extra-index-url https://pypi.org/simple/
+              ocr_translate_google==${{ steps.get_version.outputs.VERSION }}
 
       - name: Build and publish on PyPI
         run: >
