@@ -22,7 +22,7 @@ classifiers = [
 keywords = ["django", "translation"]
 requires-python = ">=3.10"
 dependencies = [
-    "django-ocr_translate>=0.2.1,<1.0",
+    "django-ocr_translate>=0.5.0,<1.0",
     "googletrans~=4.0.0rc1",
 ]
 
