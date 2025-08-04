@@ -18,6 +18,7 @@
 ###################################################################################
 """Plugin to implement google translation for ocr_translate."""
 
+import asyncio
 import datetime
 import time
 
@@ -44,6 +45,12 @@ class GoogleTranslateModel(m.TSLModel):
         super().__init__(*args, **kwargs)
         self.last = None
         self.translator = None
+        try:
+            self.loop = asyncio.get_event_loop()
+        except RuntimeError:
+            # If no event loop is running, create a new one
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
 
     def load(self):
         """Load the model into memory."""
@@ -97,7 +104,9 @@ class GoogleTranslateModel(m.TSLModel):
         self.last = datetime.datetime.now()
 
         try:
-            res = self.translator.translate(tokens, src=src_lang, dest=dst_lang).text
+            res = self.loop.run_until_complete(
+                self.translator.translate(tokens, src=src_lang, dest=dst_lang)
+            ).text
         except TypeError:
             res = ' '
 
