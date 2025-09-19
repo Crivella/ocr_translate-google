@@ -65,7 +65,6 @@ exclude = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 DJANGO_SETTINGS_MODULE = "settings"
-log_cli = true
 pythonpath = ["./tests"]
 
 [tool.pylint.main]
