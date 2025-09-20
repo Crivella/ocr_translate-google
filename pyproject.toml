@@ -85,5 +85,5 @@ disable = [
 max-line-length = 120
 good-names = [
     "_",
-
+    "DISABLE_LOAD_EVENTS"
 ]
