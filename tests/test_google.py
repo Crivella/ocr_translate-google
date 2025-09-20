@@ -43,32 +43,28 @@ def test_entrypoint_pyproj():
 
     assert cls is octg_plugin.GoogleTranslateModel
 
-def test_load():
+def test_load(gt_model):
     """Test that the model is loaded correctly."""
-    obj = octg_plugin.GoogleTranslateModel()
+    assert gt_model.translator is None
+    gt_model.load()
+    assert isinstance(gt_model.translator, googletrans.Translator)
 
-    assert obj.translator is None
-    obj.load()
-    assert isinstance(obj.translator, googletrans.Translator)
-
-def test_unload():
+def test_unload(gt_model):
     """Test that the model is unloaded correctly."""
-    obj = octg_plugin.GoogleTranslateModel()
-    obj.load()
-    assert isinstance(obj.translator, googletrans.Translator)
-    obj.unload()
-    assert obj.translator is None
+    gt_model.load()
+    assert isinstance(gt_model.translator, googletrans.Translator)
+    gt_model.unload()
+    assert gt_model.translator is None
 
-def test_translate_nonbatch(monkeypatch, mock_translate):
+def test_translate_nonbatch(monkeypatch, mock_translate, gt_model):
     """Test that translate calls the translator correctly."""
-    obj = octg_plugin.GoogleTranslateModel()
-    obj.load()
-    monkeypatch.setattr(obj.translator, 'translate', mock_translate)
+    gt_model.load()
+    monkeypatch.setattr(gt_model.translator, 'translate', mock_translate)
 
     tokens = ['tok1', 'tok2']
     expected = 'tok1 tok2'
 
-    res = obj._translate(tokens, 'ja', 'en')
+    res = gt_model._translate(tokens, 'ja', 'en')
 
     assert mock_translate.called
     assert mock_translate.args == (expected,)
@@ -76,16 +72,15 @@ def test_translate_nonbatch(monkeypatch, mock_translate):
 
     assert res == expected
 
-def test_translate_batch(monkeypatch, mock_translate):
+def test_translate_batch(monkeypatch, mock_translate, gt_model):
     """Test that translate calls the translator correctly."""
-    obj = octg_plugin.GoogleTranslateModel()
-    obj.load()
-    monkeypatch.setattr(obj.translator, 'translate', mock_translate)
+    gt_model.load()
+    monkeypatch.setattr(gt_model.translator, 'translate', mock_translate)
 
     tokens = [['tok1', 'tok2'], ['tok3', 'tok4']]
     expected = 'tok1 tok2\n\ntok3 tok4'
 
-    res = obj._translate(tokens, 'ja', 'en')
+    res = gt_model._translate(tokens, 'ja', 'en')
 
     assert mock_translate.called
     assert mock_translate.args == (expected,)
@@ -93,59 +88,55 @@ def test_translate_batch(monkeypatch, mock_translate):
 
     assert res == expected.split('\n\n')
 
-def test_translate_exception(monkeypatch):
+def test_translate_exception(monkeypatch, gt_model):
     """Test that translate returns an empty string if an exception is raised."""
-    obj = octg_plugin.GoogleTranslateModel()
-    obj.load()
+    gt_model.load()
 
     def mock_raise(*args, **kwargs):
         raise TypeError
-    monkeypatch.setattr(obj.translator, 'translate', mock_raise)
+    monkeypatch.setattr(gt_model.translator, 'translate', mock_raise)
 
-    res = obj._translate(['tok1', 'tok2'], 'ja', 'en')
+    res = gt_model._translate(['tok1', 'tok2'], 'ja', 'en')
 
     assert res == ' '
 
 
-def test_throttling(monkeypatch, mock_translate, mock_called, mock_datetime):
+def test_throttling(monkeypatch, mock_translate, mock_called, mock_datetime, gt_model):
     """Test that consecutive calls to translate are throttled."""
     monkeypatch.setattr(octg_plugin.time, 'sleep', mock_called)
     # Needed to make sure test result does not depend on PC speed or has to run for 2+ seconds
     monkeypatch.setattr(octg_plugin.datetime, 'datetime', mock_datetime)
     monkeypatch.setattr(octg_plugin.datetime, 'timedelta', lambda seconds: seconds)
-    obj = octg_plugin.GoogleTranslateModel()
-    obj.load()
-    monkeypatch.setattr(obj.translator, 'translate', mock_translate)
+    gt_model.load()
+    monkeypatch.setattr(gt_model.translator, 'translate', mock_translate)
 
     tokens = ['tok1', 'tok2']
 
-    obj._translate(tokens, 'ja', 'en')
-    obj._translate(tokens, 'ja', 'en', options={'delta_thr': 2})
+    gt_model._translate(tokens, 'ja', 'en')
+    gt_model._translate(tokens, 'ja', 'en', options={'delta_thr': 2})
 
     assert hasattr(mock_called, 'called')
 
-def test_throttling_delta_string(monkeypatch, mock_translate, mock_called, mock_datetime):
+def test_throttling_delta_string(monkeypatch, mock_translate, mock_called, mock_datetime, gt_model):
     """Test that consecutive calls to translate are throttled."""
     monkeypatch.setattr(octg_plugin.time, 'sleep', mock_called)
     # Needed to make sure test result does not depend on PC speed or has to run for 2+ seconds
     monkeypatch.setattr(octg_plugin.datetime, 'datetime', mock_datetime)
     monkeypatch.setattr(octg_plugin.datetime, 'timedelta', lambda seconds: seconds)
-    obj = octg_plugin.GoogleTranslateModel()
-    obj.load()
-    monkeypatch.setattr(obj.translator, 'translate', mock_translate)
+    gt_model.load()
+    monkeypatch.setattr(gt_model.translator, 'translate', mock_translate)
 
     tokens = ['tok1', 'tok2']
 
-    obj._translate(tokens, 'ja', 'en')
-    obj._translate(tokens, 'ja', 'en', options={'delta_thr': '2'})
+    gt_model._translate(tokens, 'ja', 'en')
+    gt_model._translate(tokens, 'ja', 'en', options={'delta_thr': '2'})
 
     assert hasattr(mock_called, 'called')
 
-def test_no_token_input():
+def test_no_token_input(gt_model):
     """Test that an empty string is returned if no tokens are passed."""
-    obj = octg_plugin.GoogleTranslateModel()
-    obj.load()
+    gt_model.load()
 
-    res = obj._translate([''], 'ja', 'en')
+    res = gt_model._translate([''], 'ja', 'en')
 
     assert res == [' ']

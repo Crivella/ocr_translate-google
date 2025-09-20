@@ -22,6 +22,8 @@
 
 import pytest
 
+from ocr_translate_google import plugin as octg_plugin
+
 
 @pytest.fixture(scope='function')
 def mock_translate():
@@ -31,7 +33,7 @@ def mock_translate():
         def __init__(self):
             self.text = None
 
-    def mock_function(text, *args, src, dest):
+    async def mock_function(text, *args, src, dest):
         res = Result()
         res.text = text
         mock_function.called = True
@@ -66,3 +68,10 @@ def mock_datetime():
     mock_function.now = mock_function
 
     return mock_function
+
+@pytest.fixture(scope='function')
+def gt_model():
+    """Fixture to create a GoogleTranslateModel instance."""
+    model = octg_plugin.GoogleTranslateModel()
+    model.DISABLE_LOAD_EVENTS = True
+    return model
